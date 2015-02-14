@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+##
+# Set this to the nesting level you want.
+DINCEPTION_DEPTH="${DINCEPTION_DEPTH:- 0}"
+
+##
+# The dind image
+dind='kojiromike/dind'
+
+##
+# Run a docker command by arbitrarily nesting dind
+# until I get bored and finally run your command.
+dive() {
+    if (( DINCEPTION_DEPTH-- > 0 )); then
+        dive run --rm --privileged -ti -e LOG=file "$dind" wrapdocker docker "$@"
+    else
+        exec docker "$@"
+    fi
+}
+
+dive "$@"
